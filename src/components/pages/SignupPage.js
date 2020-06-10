@@ -15,6 +15,17 @@ class SignupPage extends React.Component {
             email: '',
             plan: 'FREE'
         };
+        this.container = React.createRef();
+    }
+
+    componentDidMount() {
+        const height = this.container.current && this.container.current.offsetHeight;
+        console.log('Height', height, this.container);
+        this.props.onHeightChange(height);
+    }
+
+    componentWillUnmount() {
+        this.props.onHeightChange(null);
     }
 
     handleSignup(e) {
@@ -129,7 +140,7 @@ class SignupPage extends React.Component {
 
     renderForm() {
         return (
-            <div style={{display: 'flex', flexDirection: 'column', marginBottom: '12px', padding: '0 18px'}}>
+            <div style={{display: 'flex', flexDirection: 'column', padding: '0 18px'}}>
                 {this.renderInputField('name')}
                 {this.renderInputField('email')}
                 {this.renderPlans()}
@@ -178,7 +189,7 @@ class SignupPage extends React.Component {
 
     render() {
         return (
-            <div style={{display: 'flex', flexDirection: 'column', color: '#313131'}}>
+            <div style={{display: 'flex', flexDirection: 'column', color: '#313131'}} id="signup-container" ref={this.container}>
                 <div style={{paddingLeft: '16px', paddingRight: '16px'}}>
                     {this.renderFormHeader()}
                     {this.renderForm()}

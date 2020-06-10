@@ -125,12 +125,23 @@ const Pages = {
 export default class PopupModal extends React.Component {
     static contextType = ParentContext;
 
+    constructor(props) {
+        super(props);
+        this.state = {
+            height: null
+        };
+    }
+
     renderCurrentPage(page) {
         const PageComponent = Pages[page];
 
         return (
-            <PageComponent />
+            <PageComponent onHeightChange = {height => this.onHeightChange(height)} />
         );
+    }
+
+    onHeightChange(height) {
+        this.setState({height});
     }
 
     renderPopupClose() {
@@ -173,6 +184,11 @@ export default class PopupModal extends React.Component {
             ...Styles.frame.common,
             ...Styles.frame[page]
         };
+        if (this.state.height) {
+            const updatedHeight = this.state.height + 52;
+            frameStyle.minHeight = `${updatedHeight}px`;
+            frameStyle.maxHeight = `${updatedHeight}px`;
+        }
         return (
             <div style={Styles.modalContainer} onClick = {e => this.handlePopupClose(e)}>
                 <Frame style={frameStyle} title="membersjs-popup" head={this.renderFrameStyles()}>

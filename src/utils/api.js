@@ -218,7 +218,7 @@ function setupGhostApi() {
     api.init = async () => {
         // Load member from fixtures for local development
         if (process.env.NODE_ENV === 'development') {
-            return {site: Fixtures.site, member: Fixtures.member.free};
+            return {site: Fixtures.site, member: Fixtures.member.paid};
         }
 
         const {site} = await api.site.read();
