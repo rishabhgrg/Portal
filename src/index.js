@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 
 const handleDataAttributes = require('./data-attributes');
 const ROOT_DIV_ID = 'ghost-membersjs-root';
@@ -45,7 +44,7 @@ function init() {
     setup({siteUrl});
     ReactDOM.render(
         <React.StrictMode>
-            <App siteUrl={siteUrl} />
+            <div> </div>
         </React.StrictMode>,
         document.getElementById(ROOT_DIV_ID)
     );
