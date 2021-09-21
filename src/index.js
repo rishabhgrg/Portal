@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import setupAnalytics from './analytics';
+import setupGhostApi from './utils/api';
+import {hasMode} from './utils/check-mode';
 
 const ROOT_DIV_ID = 'ghost-portal-root';
 
@@ -39,22 +41,46 @@ function setupAnalyticsScript({siteUrl}) {
     }
 }
 
-function setup({siteUrl}) {
+async function fetchApiData() {
+    try {
+        const customSiteUrl = getSiteUrl();
+        const siteUrl = customSiteUrl || window.location.origin;
+        const GhostApi = setupGhostApi({siteUrl});
+        const {site, member} = await GhostApi.init();
+
+        return {site, member};
+    } catch (e) {
+        if (hasMode(['dev', 'test'], {customSiteUrl: getSiteUrl()})) {
+            return {};
+        }
+        throw e;
+    }
+}
+
+async function setup({siteUrl}) {
+    const {site, member} = await fetchApiData();
     addRootDiv();
     handleTokenUrl();
     setupAnalyticsScript({siteUrl});
+    return {site, member};
 }
 
-function init() {
+async function init() {
     const customSiteUrl = getSiteUrl();
     const siteUrl = customSiteUrl || window.location.origin;
-    setup({siteUrl});
-    ReactDOM.render(
-        <React.StrictMode>
-            <App siteUrl={siteUrl} customSiteUrl={customSiteUrl} />
-        </React.StrictMode>,
-        document.getElementById(ROOT_DIV_ID)
-    );
+    try {
+        const {site, member} = await setup({siteUrl});
+        ReactDOM.render(
+            <React.StrictMode>
+                <App siteUrl={siteUrl} customSiteUrl={customSiteUrl} site={site} member={member} />
+            </React.StrictMode>,
+            document.getElementById(ROOT_DIV_ID)
+        );
+    } catch (e) {
+        /* eslint-disable no-console */
+        console.error(`[Portal] Failed to initialize:`, e);
+        /* eslint-enable no-console */
+    }
 }
 
 init();

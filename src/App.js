@@ -2,7 +2,6 @@ import * as Sentry from '@sentry/react';
 import TriggerButton from './components/TriggerButton';
 import Notification from './components/Notification';
 import PopupModal from './components/PopupModal';
-import setupGhostApi from './utils/api';
 import AppContext from './AppContext';
 import {hasMode} from './utils/check-mode';
 import {getActivePage, isAccountPage} from './pages';
@@ -376,13 +375,10 @@ export default class App extends React.Component {
         return false;
     }
 
-    /** Fetch site and member session data with Ghost Apis  */
+    /** Use site and member session data from Ghost Apis */
     async fetchApiData() {
-        const {siteUrl, customSiteUrl} = this.props;
-        try {
-            this.GhostApi = setupGhostApi({siteUrl});
-            const {site, member} = await this.GhostApi.init();
-
+        const {site, member} = this.props;
+        if (site) {
             const colorOverride = this.getColorOverride();
             if (colorOverride) {
                 site.accent_color = colorOverride;
@@ -390,13 +386,9 @@ export default class App extends React.Component {
 
             this.setupFirstPromoter({site, member});
             this.setupSentry({site});
-            return {site, member};
-        } catch (e) {
-            if (hasMode(['dev', 'test'], {customSiteUrl})) {
-                return {};
-            }
-            throw e;
         }
+
+        return {site, member};
     }
 
     /** Setup Sentry */
