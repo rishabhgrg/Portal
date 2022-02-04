@@ -234,7 +234,7 @@ const PaidAccountActions = () => {
     };
 
     const PlanUpdateButton = ({isComplimentary}) => {
-        if (isComplimentary || hasOnlyFreePlan({site})) {
+        if (hasOnlyFreePlan({site})) {
             return null;
         }
         return (
