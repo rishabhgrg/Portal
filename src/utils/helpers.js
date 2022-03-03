@@ -77,7 +77,7 @@ export function getUpgradeProducts({site, member}) {
     const activePrice = getMemberActivePrice({member});
     const activePriceCurrency = activePrice?.currency;
     const availableProducts = getAvailableProducts({site});
-    if (!activePrice?.id) {
+    if (!activePrice?.id || !activePrice.amount) {
         return availableProducts;
     }
     return availableProducts.filter((product) => {
@@ -87,6 +87,9 @@ export function getUpgradeProducts({site, member}) {
 
 export function getFilteredPrices({prices, currency}) {
     return prices.filter((d) => {
+        if (!d.amount) {
+            return true;
+        }
         return (d.currency || '').toLowerCase() === (currency || '').toLowerCase();
     });
 }
