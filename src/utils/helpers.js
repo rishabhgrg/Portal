@@ -199,6 +199,50 @@ export function hasMultipleProductsFeature({site}) {
     return !!portalProducts;
 }
 
+export function transformApiTiersData({tiers}) {
+    if (!tiers) {
+        return null;
+    }
+    let benefitId = 0;
+    let priceId = 0;
+
+    return tiers.map((tier) => {
+        let monthlyPrice = tier.monthly_price ? {
+            id: `price-${priceId}`,
+            active: true,
+            type: 'recurring',
+            nickname: 'Monthly',
+            currency: tier.currency,
+            amount: tier.monthly_price,
+            interval: 'month'
+        } : null;
+        priceId += 1;
+        let yearlyPrice = tier.yearly_price ? {
+            id: `price-${priceId}`,
+            active: true,
+            type: 'recurring',
+            nickname: 'Yearly',
+            currency: tier.currency,
+            amount: tier.yearly_price,
+            interval: 'year'
+        } : null;
+        priceId += 1;
+        let benefits = tier.benefits?.map((benefit) => {
+            benefitId += 1;
+            return {
+                id: `benefit-${benefitId}`,
+                name: benefit
+            };
+        });
+        return {
+            ...tier,
+            benefits: benefits,
+            monthly_price: monthlyPrice,
+            yearly_price: yearlyPrice
+        };
+    });
+}
+
 export function transformApiSiteData({site}) {
     if (!site) {
         return null;
@@ -450,6 +494,24 @@ export function getProductFromPrice({site, priceId}) {
     return products.find((product) => {
         return (product?.monthlyPrice?.id === priceId) || (product?.yearlyPrice?.id === priceId);
     });
+}
+
+export function getProductCadenceFromPrice({site, priceId}) {
+    if (priceId === 'free') {
+        return getFreeProduct({site});
+    }
+    const products = getAllProductsForSite({site});
+    const tier = products.find((product) => {
+        return (product?.monthlyPrice?.id === priceId) || (product?.yearlyPrice?.id === priceId);
+    });
+    let cadence = 'month';
+    if (tier?.yearlyPrice?.id === priceId) {
+        cadence = 'year';
+    }
+    return {
+        tierId: tier?.id,
+        cadence
+    };
 }
 
 export function getAvailablePrices({site, products = null}) {
